@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/githuboauth
+    username: root
+    password: tpitlfy
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: Ov23liQceTDnG7ECuOO3
+            client-secret: 2f2e14a9bbfa8f4bc5871d217e3771a682a24788
+            scope:
+              - repo
+              - user
+              - read:org
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: ooiaubvoibuoiubuoiubvowiuISUDRVOEIUBRPAEIUBoiurbrvoiaeub087t2gb349582734bf230467f9vo8ouybvperubwvefiowugcfSOUYRBVSUYBSROUI029835620834GBOVRTBWCRCG8NCiueornc48tyw4vg89ynrh08cnwy8t57vn04w8c57hwn0587
+    expiration-ms: 864000000  # 24 hours
+  cookie:
+    jwt-cookie-name: github-auth-jwt
+    domain: localhost
+    path: /
+    max-age: 864000  # 24 hours
+    secure: false    # Set to true in production
+    http-only: true
