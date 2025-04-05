@@ -31,27 +31,36 @@ public class DashboardController {
 
     @GetMapping("/dashboard")
     public String dashboard(Authentication authentication, Model model) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User)) {
-            logger.warn("User not authenticated or not an OAuth2 user");
+        if (authentication == null) {
+            logger.warn("User not authenticated");
             return "redirect:/";
         }
 
         try {
-            OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-            Map<String, Object> attributes = oAuth2User.getAttributes();
-            String githubId = attributes.get("id").toString();
+            Object principal = authentication.getPrincipal();
+            String githubId;
+
+            if (principal instanceof OAuth2User) {
+                OAuth2User oAuth2User = (OAuth2User) principal;
+                Map<String, Object> attributes = oAuth2User.getAttributes();
+                githubId = attributes.get("id").toString();
+                logger.info("User authenticated via OAuth2: {}", attributes.get("login"));
+            } else {
+                // Handle JWT authentication
+                githubId = authentication.getName();
+                logger.info("User authenticated via JWT: {}", githubId);
+            }
 
             Optional<User> userOptional = userRepository.findByGithubId(githubId);
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
                 model.addAttribute("user", user);
                 logger.info("User dashboard accessed for: {}", user.getLogin());
+                return "dashboard";
             } else {
                 logger.warn("User not found in database for GitHub ID: {}", githubId);
                 return "redirect:/";
             }
-
-            return "dashboard";
         } catch (Exception e) {
             logger.error("Error accessing dashboard", e);
             return "redirect:/";
