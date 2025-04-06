@@ -1,6 +1,9 @@
 package com.github.oauth.service;
 
+import com.github.oauth.model.AppRole;
+import com.github.oauth.model.Role;
 import com.github.oauth.model.User;
+import com.github.oauth.repository.RoleRepository;
 import com.github.oauth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -13,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
     @Transactional
     public void updateEmail(Authentication authentication, String newEmail) {
@@ -44,5 +48,23 @@ public class UserService {
 
         return userRepository.findByGithubId(githubId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
+    @Transactional
+    public void addRoleToUser(Authentication authentication, AppRole roleName) {
+        User user = getCurrentUser(authentication);
+        
+        // Find or create the role
+        Role role = roleRepository.findByRoleName(roleName)
+            .orElseGet(() -> {
+                Role newRole = new Role(roleName);
+                return roleRepository.save(newRole);
+            });
+
+        // Add role to user if not already present
+        if (!user.getRoles().contains(role)) {
+            user.getRoles().add(role);
+            userRepository.save(user);
+        }
     }
 } 

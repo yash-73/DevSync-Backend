@@ -1,7 +1,11 @@
 package com.github.oauth.controller;
 
+import com.github.oauth.model.AppRole;
+import com.github.oauth.model.Role;
 import com.github.oauth.model.User;
+import com.github.oauth.repository.RoleRepository;
 import com.github.oauth.repository.UserRepository;
+import com.github.oauth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,38 +23,18 @@ import java.util.Optional;
 public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-    private final UserRepository userRepository;
+    private final UserService userService;
+    private final RoleRepository roleRepository;
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(Authentication authentication) {
-        if (authentication == null) {
-            logger.warn("User not authenticated");
-            return ResponseEntity.status(401).body("User not authenticated");
-        }
-
         try {
-            Object principal = authentication.getPrincipal();
-            String githubId;
-
-            if (principal instanceof OAuth2User) {
-                OAuth2User oAuth2User = (OAuth2User) principal;
-                Map<String, Object> attributes = oAuth2User.getAttributes();
-                githubId = attributes.get("id").toString();
-                logger.info("User authenticated via OAuth2: {}", attributes.get("login"));
-            } else {
-                githubId = authentication.getName();
-                logger.info("User authenticated via: {}", githubId);
-            }
-
-            Optional<User> userOptional = userRepository.findByGithubId(githubId);
-            if (userOptional.isPresent()) {
-                User user = userOptional.get();
-                logger.info("User profile accessed for: {}", user.getLogin());
-                return ResponseEntity.ok(user);
-            } else {
-                logger.warn("User not found in database for GitHub ID: {}", githubId);
-                return ResponseEntity.status(404).body("User not found");
-            }
+            User user = userService.getCurrentUser(authentication);
+            logger.info("User profile accessed for: {}", user.getLogin());
+            return ResponseEntity.ok(user);
+        } catch (IllegalArgumentException e) {
+            logger.warn("User not authenticated or not found: {}", e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
         } catch (Exception e) {
             logger.error("Error accessing user profile", e);
             return ResponseEntity.status(500).body("Internal server error");
@@ -59,43 +43,48 @@ public class UserController {
 
     @PutMapping("/email")
     public ResponseEntity<?> updateEmail(Authentication authentication, @RequestBody Map<String, String> request) {
-        if (authentication == null) {
-            logger.warn("User not authenticated");
-            return ResponseEntity.status(401).body("User not authenticated");
-        }
-
         String newEmail = request.get("email");
         if (newEmail == null || newEmail.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("Email cannot be empty");
         }
 
         try {
-            Object principal = authentication.getPrincipal();
-            String githubId;
-
-            if (principal instanceof OAuth2User) {
-                OAuth2User oAuth2User = (OAuth2User) principal;
-                Map<String, Object> attributes = oAuth2User.getAttributes();
-                githubId = attributes.get("id").toString();
-                logger.info("User authenticated via OAuth2: {}", attributes.get("login"));
-            } else {
-                githubId = authentication.getName();
-                logger.info("User authenticated via: {}", githubId);
-            }
-
-            Optional<User> userOptional = userRepository.findByGithubId(githubId);
-            if (userOptional.isPresent()) {
-                User user = userOptional.get();
-                user.setEmail(newEmail);
-                userRepository.save(user);
-                logger.info("Email updated for user: {}", user.getLogin());
-                return ResponseEntity.ok("Email updated successfully");
-            } else {
-                logger.warn("User not found in database for GitHub ID: {}", githubId);
-                return ResponseEntity.status(404).body("User not found");
-            }
+            userService.updateEmail(authentication, newEmail);
+            logger.info("Email updated successfully");
+            return ResponseEntity.ok("Email updated successfully");
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to update email: {}", e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
         } catch (Exception e) {
             logger.error("Error updating email", e);
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
+
+    @PostMapping("/role")
+    public ResponseEntity<?> addRole(Authentication authentication, @RequestBody Map<String, String> request) {
+        String roleName = request.get("role");
+        if (roleName == null || roleName.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Role name cannot be empty");
+        }
+
+        try {
+            AppRole appRole;
+            try {
+                appRole = AppRole.valueOf(roleName.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest().body("Invalid role name. Valid roles are: " + 
+                    String.join(", ", AppRole.values().toString()));
+            }
+
+            userService.addRoleToUser(authentication, appRole);
+            logger.info("Role {} added successfully", appRole);
+            return ResponseEntity.ok("Role added successfully");
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to add role: {}", e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error adding role", e);
             return ResponseEntity.status(500).body("Internal server error");
         }
     }
