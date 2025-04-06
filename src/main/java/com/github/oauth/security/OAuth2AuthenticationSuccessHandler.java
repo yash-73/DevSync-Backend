@@ -1,11 +1,9 @@
 package com.github.oauth.security;
 
 import com.github.oauth.repository.UserRepository;
-import com.github.oauth.util.CookieUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -21,14 +19,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private static final Logger logger = LoggerFactory.getLogger(OAuth2AuthenticationSuccessHandler.class);
     private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final CookieUtil cookieUtil;
 
-    public OAuth2AuthenticationSuccessHandler(UserRepository userRepository, JwtTokenProvider jwtTokenProvider,
-                                            CookieUtil cookieUtil) {
+
+    public OAuth2AuthenticationSuccessHandler(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.cookieUtil = cookieUtil;
         setDefaultTargetUrl("/dashboard");
     }
 
@@ -43,14 +37,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             String githubId = attributes.get("id").toString();
             String login = (String) attributes.get("login");
             logger.info("Authenticated GitHub user: {}", login);
-
-            // Generate JWT token
-            String token = jwtTokenProvider.generateToken(githubId);
-            logger.info("Generated JWT token for user: {}", login);
-
-            // Add the token to a cookie
-            cookieUtil.addJwtCookie(response, token);
-            logger.info("Added JWT cookie for user: {}", login);
 
             // Use the parent class's redirect strategy
             super.onAuthenticationSuccess(request, response, authentication);
