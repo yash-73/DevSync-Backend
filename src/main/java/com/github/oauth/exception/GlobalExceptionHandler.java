@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
+import com.github.oauth.payload.APIResponse;
+
+
 import java.util.Date;
 
 
@@ -54,4 +57,19 @@ public class GlobalExceptionHandler {
             return details;
         }
     }
+
+    @ExceptionHandler(ResourceNotFound.class)
+    public ResponseEntity<APIResponse> myResourceNotFoundException(ResourceNotFound e){
+        String message = e.getMessage();
+        APIResponse apiResponse = new APIResponse(message, false);
+        return new ResponseEntity<>(apiResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(GeneralException.class)
+    public ResponseEntity<APIResponse> myGeneralException(GeneralException e){
+        String message = e.getMessage();
+        APIResponse apiResponse = new APIResponse(message, false);
+        return new ResponseEntity<>(apiResponse, HttpStatus.GONE);
+    }
+
 }

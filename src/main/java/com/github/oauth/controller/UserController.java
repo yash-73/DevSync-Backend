@@ -1,21 +1,21 @@
 package com.github.oauth.controller;
 
 import com.github.oauth.model.AppRole;
-import com.github.oauth.model.Role;
+
 import com.github.oauth.model.User;
-import com.github.oauth.repository.RoleRepository;
-import com.github.oauth.repository.UserRepository;
+
+
 import com.github.oauth.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/api/user")
@@ -24,7 +24,7 @@ public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
-    private final RoleRepository roleRepository;
+    
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile(Authentication authentication) {
