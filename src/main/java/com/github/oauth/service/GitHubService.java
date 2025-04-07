@@ -4,7 +4,7 @@ package com.github.oauth.service;
 
 import com.github.oauth.model.User;
 import com.github.oauth.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+
 import org.kohsuke.github.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

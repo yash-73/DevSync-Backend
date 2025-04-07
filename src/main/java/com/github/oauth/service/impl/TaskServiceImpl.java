@@ -1,4 +1,4 @@
-package com.github.oauth.service;
+package com.github.oauth.service.impl;
 
 
 import com.google.cloud.firestore.*;
@@ -9,6 +9,8 @@ import com.github.oauth.model.Task;
 import com.github.oauth.model.User;
 import com.github.oauth.repository.ProjectRepository;
 import com.github.oauth.repository.UserRepository;
+import com.github.oauth.service.TaskService;
+
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

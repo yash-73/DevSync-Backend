@@ -2,7 +2,7 @@ package com.github.oauth.controller;
 
 import com.github.oauth.model.User;
 import com.github.oauth.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;

@@ -1,4 +1,4 @@
-package com.github.oauth.service;
+package com.github.oauth.service.impl;
 
 
 
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.github.oauth.model.Tech;
 import com.github.oauth.repository.TechRepository;
+import com.github.oauth.service.TechService;
 
 @Service
 public class TechServiceImpl implements  TechService{

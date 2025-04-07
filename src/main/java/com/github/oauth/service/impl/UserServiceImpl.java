@@ -1,4 +1,4 @@
-package com.github.oauth.service;
+package com.github.oauth.service.impl;
 
 import com.github.oauth.model.AppRole;
 import com.github.oauth.model.Role;
@@ -7,7 +7,7 @@ import com.github.oauth.model.User;
 import com.github.oauth.exception.ResourceNotFound;
 import com.github.oauth.repository.RoleRepository;
 import com.github.oauth.repository.UserRepository;
-
+import com.github.oauth.service.UserService;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;

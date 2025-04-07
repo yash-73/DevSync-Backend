@@ -1,4 +1,4 @@
-package com.github.oauth.service;
+package com.github.oauth.service.impl;
 
 
 
@@ -12,6 +12,8 @@ import com.github.oauth.model.ProjectJoinRequest;
 import com.github.oauth.model.User;
 import com.github.oauth.repository.ProjectRepository;
 import com.github.oauth.repository.UserRepository;
+import com.github.oauth.service.NotificationService;
+
 import jakarta.transaction.Transactional;
 
 import org.slf4j.Logger;
