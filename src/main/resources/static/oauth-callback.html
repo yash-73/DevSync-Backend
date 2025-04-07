@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OAuth Callback</title>
+    <script>
+        // Get the URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        
+        // Redirect to frontend with the parameters
+        window.location.href = `http://localhost:5173/oauth-callback?code=${code}&state=${state}`;
+    </script>
+</head>
+<body>
+    <p>Redirecting to frontend...</p>
+</body>
+</html> 

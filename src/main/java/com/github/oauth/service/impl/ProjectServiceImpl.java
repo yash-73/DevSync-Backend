@@ -1,25 +1,31 @@
-package com.github.oauth.service;
+package com.github.oauth.service.impl;
 
 
 import com.google.cloud.firestore.Firestore;
 import com.github.oauth.exception.ResourceNotFound;
 import com.github.oauth.model.*;
-import com.github.oauth.payload.APIResponse;
+
 import com.github.oauth.payload.ProjectDTO;
 import com.github.oauth.repository.ProjectRepository;
 import com.github.oauth.repository.TechRepository;
-import com.github.oauth.repository.UserRepository;
+
 
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Date;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashSet;
 import java.util.Set;
+
+import java.util.List;
 import java.util.stream.Collectors;
+
+import com.github.oauth.service.ProjectService;
+
 
 @Service
 public class ProjectServiceImpl implements  ProjectService{
@@ -32,6 +38,9 @@ public class ProjectServiceImpl implements  ProjectService{
 
     private Firestore firestore;
 
+    private static final Logger logger = LoggerFactory.getLogger(ProjectServiceImpl.class);
+
+
 
 
     public ProjectServiceImpl(ProjectRepository projectRepository,ModelMapper modelMapper
@@ -40,7 +49,6 @@ public class ProjectServiceImpl implements  ProjectService{
         this.modelMapper = modelMapper;
         this.techRepository = techRepository;
         this.firestore = firestore;
-
 
     }
 
@@ -131,6 +139,31 @@ public class ProjectServiceImpl implements  ProjectService{
         }
 
         else return "You are not the creator of the project";
+    }
+
+    @Transactional
+    public List<ProjectDTO> searchProjectsByTechStack(Set<String> techNames) {
+        try {
+            // Convert tech names to Tech entities
+            Set<Tech> techStack = techNames.stream()
+                .map(name -> {
+                    Tech tech = techRepository.findByTechName(name);
+                    if(tech == null) throw new ResourceNotFound("Tech not found " + name);
+                    return tech;
+                })
+                .collect(Collectors.toSet());
+
+            // Search projects with matching tech stack
+            List<Project> projects = projectRepository.findByTechStackOrderByMatchCount(techStack);
+
+            // Convert to DTOs
+            return projects.stream()
+                .map(project -> modelMapper.map(project, ProjectDTO.class))
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error("Error searching projects by tech stack", e);
+            throw new RuntimeException("Failed to search projects by tech stack", e);
+        }
     }
 
 

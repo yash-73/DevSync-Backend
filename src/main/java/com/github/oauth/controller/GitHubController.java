@@ -1,11 +1,12 @@
 package com.github.oauth.controller;
 
 
-import com.github.oauth.service.GitHubService;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.github.oauth.service.GitHubService;
 
 import java.io.Serializable;
 import java.util.Collections;

@@ -5,6 +5,7 @@ import com.github.oauth.model.User;
 import com.github.oauth.payload.ProjectDTO;
 import com.github.oauth.service.ProjectService;
 import com.github.oauth.service.UserService;
+import lombok.RequiredArgsConstructor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,20 +15,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/project")
-
+@RequiredArgsConstructor
 public class ProjectController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectController.class);
     private final UserService userService;
     private final ProjectService projectService;
-
-    public ProjectController(UserService userService, ProjectService projectService){
-        this.userService = userService;
-        this.projectService = projectService;
-    }
 
     @PostMapping("/create")
     public ResponseEntity<?> createProject(Authentication authentication, @RequestBody ProjectDTO projectDTO) {
@@ -89,6 +86,25 @@ public class ProjectController {
             return ResponseEntity.status(401).body(e.getMessage());
         } catch (Exception e) {
             logger.error("Error deleting project", e);
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<?> searchProjectsByTechStack(Authentication authentication, @RequestBody Set<String> techStack) {
+        try {
+            // Validate authentication
+            userService.getCurrentUser(authentication);
+            
+            // Search projects
+            List<ProjectDTO> projects = projectService.searchProjectsByTechStack(techStack);
+            logger.info("Found {} projects matching tech stack: {}", projects.size(), techStack);
+            return ResponseEntity.ok(projects);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to search projects: {}", e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error searching projects", e);
             return ResponseEntity.status(500).body("Internal server error");
         }
     }
