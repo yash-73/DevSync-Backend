@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Firebase ###
+.firebase/
+
+### Google Cloud ###
+.google/
+
+### application.properties ###
+src/main/resources/application.yaml
+/src/main/resources/serviceAccountKey.json
+
+
