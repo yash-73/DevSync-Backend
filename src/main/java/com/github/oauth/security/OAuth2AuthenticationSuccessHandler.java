@@ -19,16 +19,16 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private static final Logger logger = LoggerFactory.getLogger(OAuth2AuthenticationSuccessHandler.class);
     private final UserRepository userRepository;
-
+    private static final String FRONTEND_URL = "http://localhost:5173";
 
     public OAuth2AuthenticationSuccessHandler(UserRepository userRepository) {
         this.userRepository = userRepository;
-        setDefaultTargetUrl("/dashboard");
+        setDefaultTargetUrl(FRONTEND_URL + "/dashboard");
     }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                      Authentication authentication) throws IOException, ServletException {
+            Authentication authentication) throws IOException, ServletException {
         try {
             logger.info("OAuth2 authentication successful");
             OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
@@ -38,11 +38,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             String login = (String) attributes.get("login");
             logger.info("Authenticated GitHub user: {}", login);
 
-            // Use the parent class's redirect strategy
-            super.onAuthenticationSuccess(request, response, authentication);
+            // Redirect to frontend dashboard
+            response.sendRedirect(FRONTEND_URL);
         } catch (Exception e) {
             logger.error("Error during OAuth2 authentication success handling", e);
-            response.sendRedirect("/?error=auth_failed");
+            response.sendRedirect(FRONTEND_URL + "/?error=auth_failed");
         }
     }
 }
