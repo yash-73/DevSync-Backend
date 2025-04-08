@@ -19,10 +19,10 @@ import com.github.oauth.repository.ProjectRepository;
 import com.github.oauth.model.Tech;
 import com.github.oauth.model.Project;
 import com.github.oauth.payload.ProjectDTO;
+import com.github.oauth.payload.UserDTO;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -33,8 +33,8 @@ public class UserServiceImpl implements UserService {
     private final ProjectRepository projectRepository;
     private final ModelMapper modelMapper;
 
-
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, TechRepository techRepository, ProjectRepository projectRepository, ModelMapper modelMapper) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, TechRepository techRepository,
+            ProjectRepository projectRepository, ModelMapper modelMapper) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.techRepository = techRepository;
@@ -77,13 +77,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void addRoleToUser(Authentication authentication, AppRole roleName) {
         User user = getCurrentUser(authentication);
-        
+
         // Find or create the role
         Role role = roleRepository.findByRoleName(roleName)
-            .orElseGet(() -> {
-                Role newRole = new Role(roleName);
-                return roleRepository.save(newRole);
-            });
+                .orElseGet(() -> {
+                    Role newRole = new Role(roleName);
+                    return roleRepository.save(newRole);
+                });
 
         // Add role to user if not already present
         if (!user.getRoles().contains(role)) {
@@ -92,20 +92,20 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    
     @Override
     public Set<Tech> addTech(Set<String> techStack, User user) {
         Set<Tech> existingTechStack = user.getTechStack();
-           techStack.forEach(
-                        tech -> {
-                            Tech foundTech = techRepository.findByTechName(tech);
-                            if(foundTech == null) throw new ResourceNotFound("Tech not found" + tech);
-                            else existingTechStack.add(foundTech);
-                        }
-                );
-           user.setTechStack(existingTechStack);
-           userRepository.save(user);
-           return existingTechStack;
+        techStack.forEach(
+                tech -> {
+                    Tech foundTech = techRepository.findByTechName(tech);
+                    if (foundTech == null)
+                        throw new ResourceNotFound("Tech not found" + tech);
+                    else
+                        existingTechStack.add(foundTech);
+                });
+        user.setTechStack(existingTechStack);
+        userRepository.save(user);
+        return existingTechStack;
     }
 
     @Override
@@ -114,8 +114,10 @@ public class UserServiceImpl implements UserService {
 
         Set<Tech> existingTechStack = user.getTechStack();
         Tech techToRemove = techRepository.findByTechName(technology);
-        if(techToRemove == null) throw new ResourceNotFound("Tech not found " +  technology);
-        else existingTechStack.remove(techToRemove);
+        if (techToRemove == null)
+            throw new ResourceNotFound("Tech not found " + technology);
+        else
+            existingTechStack.remove(techToRemove);
         user.setTechStack(existingTechStack);
         return existingTechStack;
     }
@@ -130,15 +132,54 @@ public class UserServiceImpl implements UserService {
                     ProjectDTO projectDTO = modelMapper.map(project, ProjectDTO.class);
                     projectDTO.setTechStack(
                             project.getTechStack().stream().map(
-                                    Tech::getTechName
-                            ).collect(Collectors.toSet())
-                    );
+                                    Tech::getTechName).collect(Collectors.toSet()));
 
                     return projectDTO;
-                }
-        ).toList();
+                }).toList();
 
     }
 
+    @Override
+    public Set<Tech> getTechStack(User user) {
+        return user.getTechStack();
+    }
 
-} 
+    @Override
+    public List<ProjectDTO> getProjects(User user) {
+        Set<Project> projects = user.getProjects();
+        return projects.stream()
+                .map(project -> {
+                    ProjectDTO projectDTO = modelMapper.map(project, ProjectDTO.class);
+                    projectDTO.setTechStack(
+                            project.getTechStack().stream()
+                                    .map(Tech::getTechName)
+                                    .collect(Collectors.toSet()));
+                    return projectDTO;
+                })
+                .toList();
+    }
+
+    @Override
+    public UserDTO getUserDTO(User user) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId());
+        userDTO.setLogin(user.getLogin());
+        userDTO.setName(user.getName());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setAvatarUrl(user.getAvatarUrl());
+        userDTO.setGithubId(user.getGithubId());
+
+        // Convert roles to string names
+        userDTO.setRoles(user.getRoles().stream()
+                .map(role -> role.getRoleName().name())
+                .collect(Collectors.toSet()));
+
+        // Convert tech stack to string names
+        userDTO.setTechStack(user.getTechStack().stream()
+                .map(Tech::getTechName)
+                .collect(Collectors.toSet()));
+
+        return userDTO;
+    }
+
+}
