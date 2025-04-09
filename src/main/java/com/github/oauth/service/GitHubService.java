@@ -1,7 +1,5 @@
 package com.github.oauth.service;
 
-
-
 import com.github.oauth.model.User;
 import com.github.oauth.repository.UserRepository;
 
@@ -9,6 +7,8 @@ import org.kohsuke.github.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,27 +16,39 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
-
 public class GitHubService {
 
+    private static final Logger logger = LoggerFactory.getLogger(GitHubService.class);
     private final UserRepository userRepository;
 
-    public GitHubService(UserRepository userRepository){
+    public GitHubService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
 
     private GitHub connectToGitHub() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String githubId = authentication.getName();
+        logger.info("Connecting to GitHub for user: {}", githubId);
 
         User user = userRepository.findByGithubId(githubId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> {
+                    logger.error("User not found for githubId: {}", githubId);
+                    return new RuntimeException("User not found");
+                });
+
+        if (user.getAccessToken() == null || user.getAccessToken().isEmpty()) {
+            logger.error("Access token is null or empty for user: {}", githubId);
+            throw new RuntimeException("Access token not found for user");
+        }
 
         try {
-            return new GitHubBuilder().withOAuthToken(user.getAccessToken()).build();
+            GitHub github = new GitHubBuilder().withOAuthToken(user.getAccessToken()).build();
+            // Test the connection
+            github.getMyself();
+            return github;
         } catch (IOException e) {
-            throw new RuntimeException("Failed to connect to GitHub", e);
+            logger.error("Failed to connect to GitHub for user: {}", githubId, e);
+            throw new RuntimeException("Failed to connect to GitHub: " + e.getMessage(), e);
         }
     }
 
@@ -53,7 +65,7 @@ public class GitHubService {
     }
 
     public void createCommit(String repoName, String branchName, String path,
-                             String commitMessage, String content) {
+            String commitMessage, String content) {
         try {
             GitHub github = connectToGitHub();
             GHMyself myself = github.getMyself();
@@ -111,14 +123,44 @@ public class GitHubService {
 
     public GHRepository createRepository(String name, String description, boolean isPrivate) {
         try {
+            logger.info("Creating repository: {} (private: {})", name, isPrivate);
             GitHub github = connectToGitHub();
+
+            // Check if repository exists
+            try {
+                GHMyself myself = github.getMyself();
+                if (myself.getRepository(name) != null) {
+                    // Repository exists, append timestamp to make it unique
+                    String uniqueName = name + "-" + System.currentTimeMillis();
+                    logger.info("Repository {} already exists, using unique name: {}", name, uniqueName);
+                    name = uniqueName;
+                }
+            } catch (IOException e) {
+                // Repository doesn't exist, continue with original name
+                logger.debug("Repository {} doesn't exist, proceeding with creation", name);
+            }
+
             GHCreateRepositoryBuilder builder = github.createRepository(name)
                     .description(description)
                     .private_(isPrivate);
 
-            return builder.create();
+            GHRepository repository = builder.create();
+            logger.info("Successfully created repository: {}", repository.getHtmlUrl());
+            return repository;
         } catch (IOException e) {
-            throw new RuntimeException("Failed to create repository", e);
+            logger.error("Failed to create repository: {}", name, e);
+            throw new RuntimeException("Failed to create repository: " + e.getMessage(), e);
+        }
+    }
+
+    public void deleteRepository(String repoName) {
+        try {
+            GitHub github = connectToGitHub();
+            GHMyself myself = github.getMyself();
+            GHRepository repository = myself.getRepository(repoName);
+            repository.delete();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete repository", e);
         }
     }
 }

@@ -20,7 +20,7 @@ public class ProjectDTO {
     @Override
     public String toString() {
         return "ProjectDTO{" +
-                "projectId='" + projectId + '\''+
+                "projectId='" + projectId + '\'' +
                 ", projectName='" + projectName + '\'' +
                 ", description='" + description + '\'' +
                 ", techStack=" + techStack +
@@ -28,9 +28,8 @@ public class ProjectDTO {
                 '}';
     }
 
-    public ProjectDTO(String projectName, String description, Set<String> techStack, String githubRepository){
+    public ProjectDTO(String projectName, String description, Set<String> techStack) {
         this.projectName = projectName;
-        this.githubRepository = githubRepository;
         this.description = description;
         this.techStack = techStack;
     }

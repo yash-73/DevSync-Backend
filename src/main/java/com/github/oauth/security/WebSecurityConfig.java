@@ -46,12 +46,12 @@ public class WebSecurityConfig {
                                 .userService(oAuth2UserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .loginPage(FRONTEND_URL + "/login"))
-                .formLogin(AbstractHttpConfigurer::disable)
-                .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout")
-                        .logoutSuccessUrl(FRONTEND_URL)
-                        .clearAuthentication(true)
-                        .invalidateHttpSession(true));
+                .formLogin(AbstractHttpConfigurer::disable);
+                // .logout(logout -> logout
+                //         .logoutUrl("/api/auth/logout")
+                //         .logoutSuccessUrl(FRONTEND_URL)
+                //         .clearAuthentication(true)
+                //         .invalidateHttpSession(true));
 
         return http.build();
     }

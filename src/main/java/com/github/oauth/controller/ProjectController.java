@@ -1,6 +1,5 @@
 package com.github.oauth.controller;
 
-
 import com.github.oauth.model.User;
 import com.github.oauth.payload.ProjectDTO;
 import com.github.oauth.service.ProjectService;
@@ -14,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import com.github.oauth.exception.ResourceNotFound;
 import java.util.List;
 import java.util.Set;
 
@@ -91,11 +91,12 @@ public class ProjectController {
     }
 
     @PostMapping("/search")
-    public ResponseEntity<?> searchProjectsByTechStack(Authentication authentication, @RequestBody Set<String> techStack) {
+    public ResponseEntity<?> searchProjectsByTechStack(Authentication authentication,
+            @RequestBody Set<String> techStack) {
         try {
             // Validate authentication
             userService.getCurrentUser(authentication);
-            
+
             // Search projects
             List<ProjectDTO> projects = projectService.searchProjectsByTechStack(techStack);
             logger.info("Found {} projects matching tech stack: {}", projects.size(), techStack);
@@ -105,6 +106,28 @@ public class ProjectController {
             return ResponseEntity.status(401).body(e.getMessage());
         } catch (Exception e) {
             logger.error("Error searching projects", e);
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
+
+    @GetMapping("/{projectId}")
+    public ResponseEntity<?> getProjectById(Authentication authentication, @PathVariable Long projectId) {
+        try {
+            // Validate authentication
+            userService.getCurrentUser(authentication);
+
+            // Get project
+            ProjectDTO project = projectService.getProjectById(projectId);
+            logger.info("Retrieved project with ID: {}", projectId);
+            return ResponseEntity.ok(project);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to get project: {}", e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (ResourceNotFound e) {
+            logger.warn("Project not found: {}", e.getMessage());
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error getting project", e);
             return ResponseEntity.status(500).body("Internal server error");
         }
     }
