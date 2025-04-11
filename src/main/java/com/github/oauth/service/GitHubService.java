@@ -11,6 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -161,6 +165,94 @@ public class GitHubService {
             repository.delete();
         } catch (IOException e) {
             throw new RuntimeException("Failed to delete repository", e);
+        }
+    }
+
+    public void addCollaborator(String repoName, String username) {
+        try {
+            // Get the current user's access token
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String githubId = authentication.getName();
+            User user = userRepository.findByGithubId(githubId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            if (user.getAccessToken() == null || user.getAccessToken().isEmpty()) {
+                throw new RuntimeException("Access token not found for user");
+            }
+
+            // Create HTTP client
+            HttpClient client = HttpClient.newHttpClient();
+            
+            // Create request to add collaborator
+            String apiUrl = String.format("https://api.github.com/repos/%s/%s/collaborators/%s", 
+                user.getLogin(), repoName, username);
+            
+            // Create JSON body with permissions
+            String requestBody = "{\"permission\":\"push\"}"; // Options: pull, push, admin, maintain, triage
+            
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(apiUrl))
+                .header("Authorization", "token " + user.getAccessToken())
+                .header("Accept", "application/vnd.github.v3+json")
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+            
+            // Send request
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                logger.info("Added {} as collaborator to repository {}", username, repoName);
+            } else {
+                logger.error("Failed to add collaborator. Status code: {}, Response: {}", 
+                    response.statusCode(), response.body());
+                throw new RuntimeException("Failed to add collaborator. Status code: " + response.statusCode());
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Failed to add collaborator {} to repository {}: {}", username, repoName, e.getMessage());
+            throw new RuntimeException("Failed to add collaborator to repository: " + e.getMessage(), e);
+        }
+    }
+
+    public void addRepositoryAccess(String repoName, String username) {
+        try {
+            // Get the current user's access token
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String githubId = authentication.getName();
+            User user = userRepository.findByGithubId(githubId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+            
+            if (user.getAccessToken() == null || user.getAccessToken().isEmpty()) {
+                throw new RuntimeException("Access token not found for user");
+            }
+
+            // Create HTTP client
+            HttpClient client = HttpClient.newHttpClient();
+            
+            // Create request to add collaborator
+            String apiUrl = String.format("https://api.github.com/repos/%s/%s/collaborators/%s", 
+                user.getLogin(), repoName, username);
+            
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(apiUrl))
+                .header("Authorization", "token " + user.getAccessToken())
+                .header("Accept", "application/vnd.github.v3+json")
+                .PUT(HttpRequest.BodyPublishers.noBody())
+                .build();
+            
+            // Send request
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                logger.info("Added {} as collaborator to repository {}", username, repoName);
+            } else {
+                logger.error("Failed to add collaborator. Status code: {}, Response: {}", 
+                    response.statusCode(), response.body());
+                throw new RuntimeException("Failed to add collaborator. Status code: " + response.statusCode());
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Failed to add collaborator {} to repository {}: {}", username, repoName, e.getMessage());
+            throw new RuntimeException("Failed to add collaborator to repository: " + e.getMessage(), e);
         }
     }
 }

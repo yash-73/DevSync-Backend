@@ -13,6 +13,7 @@ import com.github.oauth.model.User;
 import com.github.oauth.repository.ProjectRepository;
 import com.github.oauth.repository.UserRepository;
 import com.github.oauth.service.NotificationService;
+import com.github.oauth.service.GitHubService;
 
 import jakarta.transaction.Transactional;
 
@@ -35,10 +36,13 @@ public class NotificationServiceImpl implements  NotificationService{
 
     private ProjectRepository projectRepository;
 
-    public NotificationServiceImpl(Firestore firestore, UserRepository userRepository,  ProjectRepository projectRepository){
+    private GitHubService githubService;
+
+    public NotificationServiceImpl(Firestore firestore, UserRepository userRepository,  ProjectRepository projectRepository, GitHubService githubService){
         this.userRepository = userRepository;
         this.firestore = firestore;
         this.projectRepository = projectRepository;
+        this.githubService = githubService;
     }
 
     @Override
@@ -105,16 +109,24 @@ public class NotificationServiceImpl implements  NotificationService{
         if (project.getMembers().contains(user))
             return "User is already a member of the project";
 
-
         if(joinRequest.getStatus().equals("ACCEPTED")){
             logger.info("Adding user to project members");
             project.getMembers().add(user);
             projectRepository.save(project);
             user.getProjects().add(project);
+
+            // Add user as collaborator to GitHub repository
+            try {
+                String repoName = project.getProjectName().toLowerCase().replaceAll("\\s+", "-");
+                githubService.addCollaborator(repoName, user.getLogin());
+                logger.info("Added user {} as collaborator to repository {}", user.getLogin(), repoName);
+            } catch (Exception e) {
+                logger.error("Failed to add user as collaborator: {}", e.getMessage());
+                // Continue with the rest of the process even if GitHub collaboration fails
+            }
         }
 
         logger.info("Updating FireStore...");
-
         try {
             String docId = joinRequest.getUserId() + "_" + projectId;
             DocumentReference docRef = firestore.collection("ProjectJoinRequests").document(docId);

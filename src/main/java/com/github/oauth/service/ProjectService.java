@@ -2,6 +2,7 @@ package com.github.oauth.service;
 
 import com.github.oauth.model.User;
 import com.github.oauth.payload.ProjectDTO;
+import com.github.oauth.payload.UserDTO;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -21,6 +22,8 @@ public interface ProjectService {
     List<ProjectDTO> searchProjectsByTechStack(Set<String> techNames);
 
     ProjectDTO getProjectById(Long projectId);
+
+    List<UserDTO> getProjectMembers(Long projectId);
 
     // private ProjectDTO convertToDTO(Project project) {
     // ProjectDTO dto = new ProjectDTO();

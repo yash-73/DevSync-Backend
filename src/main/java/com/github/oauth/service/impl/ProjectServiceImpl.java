@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.oauth.service.ProjectService;
+import com.github.oauth.payload.UserDTO;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -208,5 +209,30 @@ public class ProjectServiceImpl implements ProjectService {
         projectDTO.setTechStack(techNames);
 
         return projectDTO;
+    }
+
+    @Override
+    public List<UserDTO> getProjectMembers(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFound("Project not found with ID: " + projectId));
+
+        return project.getMembers().stream()
+                .map(member -> {
+                    UserDTO userDTO = new UserDTO();
+                    userDTO.setId(member.getId());
+                    userDTO.setLogin(member.getLogin());
+                    userDTO.setName(member.getName());
+                    userDTO.setEmail(member.getEmail());
+                    userDTO.setAvatarUrl(member.getAvatarUrl());
+                    userDTO.setGithubId(member.getGithubId());
+                    userDTO.setRoles(member.getRoles().stream()
+                            .map(role -> role.getRoleName().name())
+                            .collect(Collectors.toSet()));
+                    userDTO.setTechStack(member.getTechStack().stream()
+                            .map(Tech::getTechName)
+                            .collect(Collectors.toSet()));
+                    return userDTO;
+                })
+                .collect(Collectors.toList());
     }
 }

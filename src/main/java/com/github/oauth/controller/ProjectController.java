@@ -2,6 +2,7 @@ package com.github.oauth.controller;
 
 import com.github.oauth.model.User;
 import com.github.oauth.payload.ProjectDTO;
+import com.github.oauth.payload.UserDTO;
 import com.github.oauth.service.ProjectService;
 import com.github.oauth.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -128,6 +129,28 @@ public class ProjectController {
             return ResponseEntity.status(404).body(e.getMessage());
         } catch (Exception e) {
             logger.error("Error getting project", e);
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
+
+    @GetMapping("/{projectId}/members")
+    public ResponseEntity<?> getProjectMembers(Authentication authentication, @PathVariable Long projectId) {
+        try {
+            // Validate authentication
+            userService.getCurrentUser(authentication);
+
+            // Get project members
+            List<UserDTO> members = projectService.getProjectMembers(projectId);
+            logger.info("Retrieved {} members for project ID: {}", members.size(), projectId);
+            return ResponseEntity.ok(members);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to get project members: {}", e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (ResourceNotFound e) {
+            logger.warn("Project not found: {}", e.getMessage());
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error getting project members", e);
             return ResponseEntity.status(500).body("Internal server error");
         }
     }
