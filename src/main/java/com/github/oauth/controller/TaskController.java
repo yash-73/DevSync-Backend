@@ -37,28 +37,44 @@ public class TaskController {
         }
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateTask(Authentication authentication, @RequestBody Task task) {
+    @PutMapping("/status")
+    public ResponseEntity<?> updateTaskStatus(Authentication authentication, @RequestBody Task task) {
         try {
             User assignedUser = userService.getCurrentUser(authentication);
-            String response = taskService.updateTask(task, assignedUser);
-            logger.info("Task updated successfully by user: {}", assignedUser.getLogin());
+            String response = taskService.updateTaskStatus(task, assignedUser);
+            logger.info("Task status updated successfully by user: {}", assignedUser.getLogin());
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
-            logger.warn("Failed to update task: {}", e.getMessage());
+            logger.warn("Failed to update task status: {}", e.getMessage());
             return ResponseEntity.status(401).body(e.getMessage());
         } catch (Exception e) {
-            logger.error("Error updating task", e);
+            logger.error("Error updating task status", e);
             return ResponseEntity.status(500).body("Internal server error");
         }
     }
 
-    @PutMapping("/creator/update/{taskId}")
-    public ResponseEntity<?> creatorUpdateTask(Authentication authentication, @PathVariable String taskId) {
+    @PutMapping("/completion")
+    public ResponseEntity<?> updateTaskCompletion(Authentication authentication, @RequestBody Task task) {
+        try {
+            User creator = userService.getCurrentUser(authentication);
+            String response = taskService.updateTaskCompletion(task, creator);
+            logger.info("Task completion updated successfully by creator: {}", creator.getLogin());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to update task completion: {}", e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error updating task completion", e);
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
+
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<?> deleteTask(Authentication authentication, @PathVariable String taskId) {
         try {
             User user = userService.getCurrentUser(authentication);
             String response = taskService.deleteTask(taskId, user);
-            logger.info("Task deleted successfully by creator: {}", user.getLogin());
+            logger.info("Task deleted successfully by user: {}", user.getLogin());
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to delete task: {}", e.getMessage());
