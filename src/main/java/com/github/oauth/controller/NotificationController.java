@@ -73,4 +73,20 @@ public class NotificationController {
             return ResponseEntity.status(500).body("Internal server error");
         }
     }
+
+    @DeleteMapping("/own-request/{projectId}")
+    public ResponseEntity<?> deleteOwnRequest(Authentication authentication, @PathVariable Long projectId) {
+        try {
+            User user = userService.getCurrentUser(authentication);
+            String response = notificationService.deleteOwnRequest(projectId, user);
+            logger.info("User {} deleted their own pending join request for project {}", user.getLogin(), projectId);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to delete own join request: {}", e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error deleting own join request", e);
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
 }

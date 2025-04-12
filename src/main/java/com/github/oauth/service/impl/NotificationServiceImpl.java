@@ -170,4 +170,33 @@ public class NotificationServiceImpl implements  NotificationService{
 
         return "Request successfully deleted";
     }
+
+    @Override
+    @Transactional
+    public String deleteOwnRequest(Long projectId, User user) {
+        if (projectId == null) throw new GeneralException("Project ID is null");
+
+        try {
+            // Check if there's a pending request from this user
+            Query query = firestore.collection("ProjectJoinRequests")
+                    .whereEqualTo("projectId", projectId)
+                    .whereEqualTo("userId", user.getId())
+                    .whereEqualTo("status", "PENDING");
+
+            ApiFuture<QuerySnapshot> querySnapshot = query.get();
+            if (querySnapshot.get().isEmpty()) {
+                return "No pending join request found for this project";
+            }
+
+            // Delete the request
+            String docId = user.getId() + "_" + projectId;
+            DocumentReference docRef = firestore.collection("ProjectJoinRequests").document(docId);
+            docRef.delete().get();
+            logger.info("User {} deleted their own pending join request for project {}", user.getLogin(), projectId);
+
+            return "Join request deleted successfully";
+        } catch (Exception e) {
+            throw new GeneralException("Failed to delete join request: " + e.getMessage());
+        }
+    }
 }

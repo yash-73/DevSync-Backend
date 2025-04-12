@@ -13,4 +13,6 @@ public interface NotificationService {
 
 
     String deleteRequest(Long userId, Long projectId, User user);
+
+    String deleteOwnRequest(Long projectId, User user);
 }
