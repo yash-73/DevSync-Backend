@@ -3,13 +3,15 @@ package com.github.oauth.service;
 
 import com.github.oauth.model.User;
 import com.github.oauth.repository.UserRepository;
-
+import com.github.oauth.repository.RoleRepository;
+import com.github.oauth.model.AppRole;
+import java.util.Collections;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-
+import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -18,9 +20,11 @@ import java.util.Optional;
 public class OAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
-    public OAuth2UserService (UserRepository userRepository){
+    public OAuth2UserService (UserRepository userRepository, RoleRepository roleRepository){
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -44,10 +48,19 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         if (userOptional.isPresent()) {
             user = userOptional.get();
-            user.setLogin(login);
-            user.setName(name);
-            user.setEmail(email);
-            user.setAvatarUrl(avatarUrl);
+            // Only update fields if the new values are not null
+            if (login != null) user.setLogin(login);
+            if (name != null) user.setName(name);
+            if (email != null) user.setEmail(email);
+            if (avatarUrl != null) user.setAvatarUrl(avatarUrl);
+            if(user.getRoles().isEmpty()){
+                user.setRoles(
+                    Collections.singleton(
+                        roleRepository.findByRoleName(AppRole.USER).orElse(null)
+                    ).stream().collect(Collectors.toSet())
+                );
+            }
+            // Always update access token and expiry date as they are required for authentication
             user.setAccessToken(accessToken);
             user.setTokenExpiryDate(calculateExpiryDate(userRequest));
         } else {
@@ -59,6 +72,11 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
             user.setAvatarUrl(avatarUrl);
             user.setAccessToken(accessToken);
             user.setTokenExpiryDate(calculateExpiryDate(userRequest));
+            user.setRoles(
+                Collections.singleton(
+                    roleRepository.findByRoleName(AppRole.USER).orElse(null)
+                ).stream().collect(Collectors.toSet())
+            );
         }
 
         userRepository.save(user);

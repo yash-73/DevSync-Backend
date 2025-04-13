@@ -3,8 +3,6 @@ package com.github.oauth.service.impl;
 import com.github.oauth.model.Message;
 import com.github.oauth.model.User;
 import com.github.oauth.service.MessageService;
-import com.github.oauth.repository.UserRepository;
-import com.github.oauth.repository.ProjectRepository;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.WriteResult;
@@ -25,13 +23,11 @@ public class MessageServiceImpl implements MessageService {
     private static final Logger logger = LoggerFactory.getLogger(MessageServiceImpl.class);
 
     private Firestore firestore;
-    private UserRepository userRepository;
-    private ProjectRepository projectRepository;
+    // private UserRepository userRepository;
+    // private ProjectRepository projectRepository;
 
-    public MessageServiceImpl(Firestore firestore, UserRepository userRepository, ProjectRepository projectRepository) {
+    public MessageServiceImpl(Firestore firestore) {
         this.firestore = firestore;
-        this.userRepository = userRepository;
-        this.projectRepository = projectRepository;
     }
 
     @Override
@@ -80,7 +76,8 @@ public class MessageServiceImpl implements MessageService {
             }
 
             // Delete the message
-            ApiFuture<WriteResult> result = docRef.delete();
+            // ApiFuture<WriteResult> result = docRef.delete();
+            docRef.delete();
             logger.info("Message deleted successfully with ID: {}", messageId);
             return "Message deleted successfully";
         } catch (Exception e) {

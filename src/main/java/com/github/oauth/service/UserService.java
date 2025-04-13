@@ -32,4 +32,10 @@ public interface UserService {
     List<ProjectDTO> getProjects(User user);
 
     UserDTO getUserDTO(User user);
+
+    UserDTO getUserDTOById(Long userId);
+
+    List<ProjectDTO> getCreatedProjectsByUserId(Long userId);
+
+    List<ProjectDTO> getJoinedProjectsByUserId(Long userId);
 }

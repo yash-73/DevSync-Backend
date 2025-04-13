@@ -1,6 +1,6 @@
 package com.github.oauth.service.impl;
 
-import com.google.cloud.firestore.Firestore;
+
 import com.github.oauth.exception.ResourceNotFound;
 import com.github.oauth.model.*;
 
@@ -35,18 +35,18 @@ public class ProjectServiceImpl implements ProjectService {
 
     private TechRepository techRepository;
 
-    private Firestore firestore;
+    // private Firestore firestore;
 
     private GitHubService githubService;
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectServiceImpl.class);
 
     public ProjectServiceImpl(ProjectRepository projectRepository, ModelMapper modelMapper,
-            TechRepository techRepository, Firestore firestore, GitHubService githubService) {
+            TechRepository techRepository, GitHubService githubService) {
         this.projectRepository = projectRepository;
         this.modelMapper = modelMapper;
         this.techRepository = techRepository;
-        this.firestore = firestore;
+        // this.firestore = firestore;
         this.githubService = githubService;
     }
 
@@ -92,6 +92,7 @@ public class ProjectServiceImpl implements ProjectService {
 
             ProjectDTO savedProjectDTO = modelMapper.map(savedProject, ProjectDTO.class);
             savedProjectDTO.setTechStack(projectDTO.getTechStack());
+            savedProjectDTO.setCreatorId(user.getId());
 
             return savedProjectDTO;
         } catch (Exception e) {
@@ -107,8 +108,8 @@ public class ProjectServiceImpl implements ProjectService {
                         () -> new ResourceNotFound("Project not found with projectId " + projectDTO.getProjectId()));
 
         if (project.getCreator().getId().equals(user.getId())) {
-            project.setProjectName(projectDTO.getProjectName()); // projectName
-            project.setDescription(projectDTO.getDescription()); // description
+            project.setProjectName(projectDTO.getProjectName());
+            project.setDescription(projectDTO.getDescription());
             Set<Tech> stack = new HashSet<>();
             if (projectDTO.getTechStack() != null) {
                 projectDTO.getTechStack().forEach(
@@ -120,8 +121,9 @@ public class ProjectServiceImpl implements ProjectService {
                                 stack.add(technology);
                         });
             }
-            project.setTechStack(stack); // techStack
+            project.setTechStack(stack);
             projectRepository.save(project);
+            projectDTO.setCreatorId(user.getId());
             return projectDTO;
         } else {
             throw new RuntimeException("User with userId " + user.getId() +
@@ -160,7 +162,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     public List<ProjectDTO> searchProjectsByTechStack(Set<String> techNames) {
         try {
-            // Convert tech names to Tech entities
             Set<Tech> techStack = techNames.stream()
                     .map(name -> {
                         Tech tech = techRepository.findByTechName(name);
@@ -170,18 +171,16 @@ public class ProjectServiceImpl implements ProjectService {
                     })
                     .collect(Collectors.toSet());
 
-            // Search projects with matching tech stack
             List<Project> projects = projectRepository.findByTechStackOrderByMatchCount(techStack);
 
-            // Convert to DTOs with tech names only
             return projects.stream()
                     .map(project -> {
                         ProjectDTO dto = modelMapper.map(project, ProjectDTO.class);
-                        // Convert Set<Tech> to Set<String> containing only tech names
                         Set<String> techNamesOnly = project.getTechStack().stream()
                                 .map(Tech::getTechName)
                                 .collect(Collectors.toSet());
                         dto.setTechStack(techNamesOnly);
+                        dto.setCreatorId(project.getCreator().getId());
                         return dto;
                     })
                     .collect(Collectors.toList());
@@ -201,8 +200,8 @@ public class ProjectServiceImpl implements ProjectService {
         projectDTO.setProjectName(project.getProjectName());
         projectDTO.setDescription(project.getDescription());
         projectDTO.setGithubRepository(project.getGithubRepository());
+        projectDTO.setCreatorId(project.getCreator().getId());
 
-        // Convert Set<Tech> to Set<String> containing only tech names
         Set<String> techNames = project.getTechStack().stream()
                 .map(Tech::getTechName)
                 .collect(Collectors.toSet());

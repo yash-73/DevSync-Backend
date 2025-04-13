@@ -124,19 +124,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<ProjectDTO> getMyCreatedProjects(User user) {
-
         Set<Project> createdProjects = user.getCreatedProjects();
-
-        return createdProjects.stream().map(
-                project -> {
+        return createdProjects.stream()
+                .map(project -> {
                     ProjectDTO projectDTO = modelMapper.map(project, ProjectDTO.class);
                     projectDTO.setTechStack(
-                            project.getTechStack().stream().map(
-                                    Tech::getTechName).collect(Collectors.toSet()));
-
+                            project.getTechStack().stream()
+                                    .map(Tech::getTechName)
+                                    .collect(Collectors.toSet()));
+                    projectDTO.setCreatorId(project.getCreator().getId());
                     return projectDTO;
-                }).toList();
-
+                })
+                .toList();
     }
 
     @Override
@@ -154,6 +153,7 @@ public class UserServiceImpl implements UserService {
                             project.getTechStack().stream()
                                     .map(Tech::getTechName)
                                     .collect(Collectors.toSet()));
+                    projectDTO.setCreatorId(project.getCreator().getId());
                     return projectDTO;
                 })
                 .toList();
@@ -180,6 +180,51 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toSet()));
 
         return userDTO;
+    }
+
+    @Override
+    public UserDTO getUserDTOById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFound("User not found with id: " + userId));
+        return getUserDTO(user);
+    }
+
+    @Override
+    public List<ProjectDTO> getCreatedProjectsByUserId(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFound("User not found with id: " + userId));
+        
+        Set<Project> createdProjects = user.getCreatedProjects();
+        return createdProjects.stream()
+                .map(project -> {
+                    ProjectDTO projectDTO = modelMapper.map(project, ProjectDTO.class);
+                    projectDTO.setTechStack(
+                            project.getTechStack().stream()
+                                    .map(Tech::getTechName)
+                                    .collect(Collectors.toSet()));
+                    projectDTO.setCreatorId(project.getCreator().getId());
+                    return projectDTO;
+                })
+                .toList();
+    }
+
+    @Override
+    public List<ProjectDTO> getJoinedProjectsByUserId(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFound("User not found with id: " + userId));
+        
+        Set<Project> joinedProjects = user.getProjects();
+        return joinedProjects.stream()
+                .map(project -> {
+                    ProjectDTO projectDTO = modelMapper.map(project, ProjectDTO.class);
+                    projectDTO.setTechStack(
+                            project.getTechStack().stream()
+                                    .map(Tech::getTechName)
+                                    .collect(Collectors.toSet()));
+                    projectDTO.setCreatorId(project.getCreator().getId());
+                    return projectDTO;
+                })
+                .toList();
     }
 
 }

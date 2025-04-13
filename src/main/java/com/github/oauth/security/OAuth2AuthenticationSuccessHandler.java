@@ -1,6 +1,5 @@
 package com.github.oauth.security;
 
-import com.github.oauth.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,11 +17,10 @@ import java.util.Map;
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(OAuth2AuthenticationSuccessHandler.class);
-    private final UserRepository userRepository;
+   
     private static final String FRONTEND_URL = "http://localhost:5173";
 
-    public OAuth2AuthenticationSuccessHandler(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public OAuth2AuthenticationSuccessHandler() {
         setDefaultTargetUrl(FRONTEND_URL + "/dashboard");
     }
 
@@ -34,7 +32,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
             Map<String, Object> attributes = oAuth2User.getAttributes();
 
-            String githubId = attributes.get("id").toString();
+            // String githubId = attributes.get("id").toString();
             String login = (String) attributes.get("login");
             logger.info("Authenticated GitHub user: {}", login);
 

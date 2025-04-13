@@ -16,6 +16,7 @@ public class ProjectDTO {
     private String description;
     private Set<String> techStack = new HashSet<>();
     private String githubRepository;
+    private Long creatorId;
 
     @Override
     public String toString() {
@@ -25,6 +26,7 @@ public class ProjectDTO {
                 ", description='" + description + '\'' +
                 ", techStack=" + techStack +
                 ", githubRepository='" + githubRepository + '\'' +
+                ", creatorId=" + creatorId +
                 '}';
     }
 

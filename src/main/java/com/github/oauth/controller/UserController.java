@@ -6,11 +6,13 @@ import com.github.oauth.model.Tech;
 import com.github.oauth.payload.ProjectDTO;
 import com.github.oauth.payload.UserDTO;
 import com.github.oauth.service.UserService;
+import com.github.oauth.exception.ResourceNotFound;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -103,7 +105,7 @@ public class UserController {
         if (techStack == null || techStack.isEmpty()) {
             return ResponseEntity.badRequest().body("Tech stack cannot be empty");
         }
-
+        logger.info("Tech stack: {}", techStack);
         try {
             User user = userService.getCurrentUser(authentication);
             Set<Tech> updatedTechStack = userService.addTech(techStack, user);
@@ -198,6 +200,75 @@ public class UserController {
             return ResponseEntity.status(401).body(e.getMessage());
         } catch (Exception e) {
             logger.error("Error retrieving user DTO", e);
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getUserById(Authentication authentication, @PathVariable Long userId) {
+        try {
+            // Verify authentication
+            if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User)) {
+                throw new IllegalArgumentException("User not authenticated");
+            }
+
+            UserDTO userDTO = userService.getUserDTOById(userId);
+            logger.info("User DTO retrieved for userId: {}", userId);
+            return ResponseEntity.ok(userDTO);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to retrieve user DTO: {}", e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (ResourceNotFound e) {
+            logger.warn("User not found: {}", e.getMessage());
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error retrieving user DTO", e);
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
+
+    @GetMapping("/{userId}/projects")
+    public ResponseEntity<?> getCreatedProjectsByUserId(Authentication authentication, @PathVariable Long userId) {
+        try {
+            // Verify authentication
+            if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User)) {
+                throw new IllegalArgumentException("User not authenticated");
+            }
+
+            List<ProjectDTO> projects = userService.getCreatedProjectsByUserId(userId);
+            logger.info("Retrieved {} created projects for userId: {}", projects.size(), userId);
+            return ResponseEntity.ok(projects);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to retrieve created projects: {}", e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (ResourceNotFound e) {
+            logger.warn("User not found: {}", e.getMessage());
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error retrieving created projects", e);
+            return ResponseEntity.status(500).body("Internal server error");
+        }
+    }
+
+    @GetMapping("/{userId}/joined-projects")
+    public ResponseEntity<?> getJoinedProjectsByUserId(Authentication authentication, @PathVariable Long userId) {
+        try {
+            // Verify authentication
+            if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User)) {
+                throw new IllegalArgumentException("User not authenticated");
+            }
+
+            List<ProjectDTO> projects = userService.getJoinedProjectsByUserId(userId);
+            logger.info("Retrieved {} joined projects for userId: {}", projects.size(), userId);
+            return ResponseEntity.ok(projects);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to retrieve joined projects: {}", e.getMessage());
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (ResourceNotFound e) {
+            logger.warn("User not found: {}", e.getMessage());
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error retrieving joined projects", e);
             return ResponseEntity.status(500).body("Internal server error");
         }
     }

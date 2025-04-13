@@ -1,6 +1,5 @@
 package com.github.oauth.controller;
 
-import com.github.oauth.util.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -19,11 +18,7 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final CookieUtil cookieUtil;
-
-    public AuthController(CookieUtil cookieUtil) {
-        this.cookieUtil = cookieUtil;
-    }
+    
 
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
