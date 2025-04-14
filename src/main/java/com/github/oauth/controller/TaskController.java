@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("api/task")
 @RequiredArgsConstructor
@@ -25,9 +27,9 @@ public class TaskController {
     public ResponseEntity<?> assignTask(Authentication authentication, @RequestBody Task task) {
         try {
             User creator = userService.getCurrentUser(authentication);
-            String response = taskService.assignTask(task, creator);
+            Task assignedTask = taskService.assignTask(task, creator);
             logger.info("Task assigned successfully by user: {}", creator.getLogin());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(assignedTask, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to assign task: {}", e.getMessage());
             return ResponseEntity.status(401).body(e.getMessage());
@@ -41,9 +43,9 @@ public class TaskController {
     public ResponseEntity<?> updateTaskStatus(Authentication authentication, @RequestBody Task task) {
         try {
             User assignedUser = userService.getCurrentUser(authentication);
-            String response = taskService.updateTaskStatus(task, assignedUser);
+            Task updatedTask = taskService.updateTaskStatus(task, assignedUser);
             logger.info("Task status updated successfully by user: {}", assignedUser.getLogin());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(updatedTask, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to update task status: {}", e.getMessage());
             return ResponseEntity.status(401).body(e.getMessage());
@@ -57,9 +59,9 @@ public class TaskController {
     public ResponseEntity<?> updateTaskCompletion(Authentication authentication, @RequestBody Task task) {
         try {
             User creator = userService.getCurrentUser(authentication);
-            String response = taskService.updateTaskCompletion(task, creator);
+            Task updatedTask = taskService.updateTaskCompletion(task, creator);
             logger.info("Task completion updated successfully by creator: {}", creator.getLogin());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(updatedTask, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to update task completion: {}", e.getMessage());
             return ResponseEntity.status(401).body(e.getMessage());
@@ -69,13 +71,19 @@ public class TaskController {
         }
     }
 
-    @DeleteMapping("/{taskId}")
-    public ResponseEntity<?> deleteTask(Authentication authentication, @PathVariable String taskId) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteTask(Authentication authentication, @RequestBody Map<String, String> request) {
         try {
+            String taskId = request.get("taskId");
+            logger.info("Deleting task with ID: {}", taskId);
+            if (taskId == null) {
+                throw new IllegalArgumentException("Task ID is required");
+            }
+            
             User user = userService.getCurrentUser(authentication);
-            String response = taskService.deleteTask(taskId, user);
+            taskService.deleteTask(taskId, user);
             logger.info("Task deleted successfully by user: {}", user.getLogin());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>("Task deleted successfully", HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to delete task: {}", e.getMessage());
             return ResponseEntity.status(401).body(e.getMessage());

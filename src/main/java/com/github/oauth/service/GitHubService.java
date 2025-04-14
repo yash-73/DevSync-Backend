@@ -255,4 +255,26 @@ public class GitHubService {
             throw new RuntimeException("Failed to add collaborator to repository: " + e.getMessage(), e);
         }
     }
+
+    public boolean isPullRequestMerged(String owner, String repo, int prNumber, String accessToken) {
+        try {
+            GitHub github = new GitHubBuilder().withOAuthToken(accessToken).build();
+            GHRepository repository = github.getRepository(owner + "/" + repo);
+            return repository.getPullRequest(prNumber).isMerged();
+        } catch (IOException e) {
+            logger.error("Error checking PR merge status for {}/{}/{}: {}", owner, repo, prNumber, e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean isPullRequestClosed(String owner, String repo, int prNumber, String accessToken) {
+        try {
+            GitHub github = new GitHubBuilder().withOAuthToken(accessToken).build();
+            GHRepository repository = github.getRepository(owner + "/" + repo);
+            return repository.getPullRequest(prNumber).getState() == GHIssueState.CLOSED;
+        } catch (IOException e) {
+            logger.error("Error checking PR closed status for {}/{}/{}: {}", owner, repo, prNumber, e.getMessage());
+            return false;
+        }
+    }
 }

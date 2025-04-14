@@ -1,27 +1,23 @@
 package com.github.oauth.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.google.cloud.Timestamp;
+import lombok.Data;
+import java.util.Date;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class Task {
+    private String id;
     private Long assignedTo;
     private Long projectId;
     private String details;
     private String status;
-    private String id;
+    private String pullRequestUrl;
+    private Timestamp lastChecked;
+    private Timestamp createdAt;
 
-    public Task(Long assignedTo, Long projectId, String details) {
-        this.assignedTo = assignedTo;
-        this.projectId = projectId;
-        this.details = details;
+    public Task() {
         this.status = "REQUESTED";
-        this.id = assignedTo + "_" + details + "_" + projectId;
+        this.createdAt = Timestamp.now();
     }
 }
 
