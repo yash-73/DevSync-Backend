@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
-import java.time.LocalDateTime;
+
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -82,11 +82,11 @@ public class TaskServiceImpl implements TaskService {
             String newStatus = task.getStatus();
 
             // Validate status transitions
-            if (currentStatus.equals("REQUESTED")) {
+            if (currentStatus != null && currentStatus.equals("REQUESTED")) {
                 if (!newStatus.equals("PENDING") && !newStatus.equals("REJECTED")) {
                     throw new GeneralException("Invalid status transition from REQUESTED");
                 }
-            } else if (currentStatus.equals("PENDING")) {
+            } else if (currentStatus != null && currentStatus.equals("PENDING")) {
                 if (!newStatus.equals("REQUEST_COMPLETE") && !newStatus.equals("REJECTED")) {
                     throw new GeneralException("Invalid status transition from PENDING");
                 }
@@ -128,11 +128,11 @@ public class TaskServiceImpl implements TaskService {
             String newStatus = task.getStatus();
 
             // Validate status transitions
-            if (!currentStatus.equals("REQUEST_COMPLETE")) {
+            if (currentStatus != null && !currentStatus.equals("REQUEST_COMPLETE")) {
                 throw new GeneralException("Task must be in REQUEST_COMPLETE status");
             }
 
-            if (!newStatus.equals("COMPLETED") && !newStatus.equals("REQUEST_REJECTED")) {
+            if (newStatus != null && !newStatus.equals("COMPLETED") && !newStatus.equals("REQUEST_REJECTED")) {
                 throw new GeneralException("Invalid status transition from REQUEST_COMPLETE");
             }
 
@@ -162,11 +162,12 @@ public class TaskServiceImpl implements TaskService {
             Project project = projectRepository.findById(document.getLong("projectId"))
                     .orElseThrow(() -> new ResourceNotFound("Project not found"));
 
-            if (!project.getCreator().getId().equals(user.getId()) && 
-                !document.getLong("assignedTo").equals(user.getId())) {
-                throw new GeneralException("You are not authorized to delete this task");
+            if (!project.getCreator().getId().equals(user.getId())) {
+                Long assignedTo = document.getLong("assignedTo");
+                if (assignedTo == null || !assignedTo.equals(user.getId())) {
+                    throw new GeneralException("You are not authorized to delete this task");
+                }   
             }
-
             docRef.delete().get();
         } catch (Exception e) {
             throw new GeneralException("Failed to delete task: " + e.getMessage());

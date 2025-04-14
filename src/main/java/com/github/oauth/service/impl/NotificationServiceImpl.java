@@ -149,24 +149,25 @@ public class NotificationServiceImpl implements  NotificationService{
 
             if(projectId == null) throw new GeneralException("Project ID was null");
 
-            Project project = projectRepository.findById(projectId)
-                    .orElseThrow(()-> new ResourceNotFound("Project not found with projectId: "+ projectId));
+            if(!projectRepository.existsById(projectId)) 
+                throw new ResourceNotFound("Project not found with projectId: "+ projectId);
 
-        if (!userId.equals(user.getId()))
-            return "You are not authorized to delete this request";
+            if (!userId.equals(user.getId()))
+                return "You are not authorized to delete this request";
 
-        logger.info("Deleting Firestore document...");
-        try {
-            String docId = userId + "_" + projectId;
-            DocumentReference docRef = firestore.collection("ProjectJoinRequests").document(docId);
+            logger.info("Deleting Firestore document...");
+            
+            try {
+                String docId = userId + "_" + projectId;
+                DocumentReference docRef = firestore.collection("ProjectJoinRequests").document(docId);
 
-            // Delete document from Firestore
-            docRef.delete().get();
-            logger.info("Firestore document deleted successfully!");
+                // Delete document from Firestore
+                docRef.delete().get();
+                logger.info("Firestore document deleted successfully!");
 
-        } catch (Exception e) {
-            throw new GeneralException("Failed to delete Firestore document: " + e.getMessage());
-        }
+            } catch (Exception e) {
+                throw new GeneralException("Failed to delete Firestore document: " + e.getMessage());
+            }
 
         return "Request successfully deleted";
     }

@@ -11,6 +11,8 @@ import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/messages")
 public class MessageController {
@@ -24,7 +26,7 @@ public class MessageController {
         this.userService = userService;
     }
 
-    @PostMapping
+    @PostMapping("/addMessage")
     public ResponseEntity<?> addMessage(@RequestBody Message message, Authentication authentication) {
         try {
             if (authentication == null || !authentication.isAuthenticated()) {
@@ -42,12 +44,17 @@ public class MessageController {
         }
     }
 
-    @DeleteMapping("/{messageId}")
-    public ResponseEntity<?> deleteMessage(@PathVariable String messageId, Authentication authentication) {
+    @DeleteMapping("/deleteMessage")
+    public ResponseEntity<?> deleteMessage(@RequestBody Map<String, String> request, Authentication authentication) {
         try {
             if (authentication == null || !authentication.isAuthenticated()) {
                 logger.warn("Unauthorized attempt to delete message");
                 return ResponseEntity.status(401).body("Authentication required");
+            }
+
+            String messageId = request.get("messageId");
+            if (messageId == null) {
+                throw new IllegalArgumentException("Message ID is required");
             }
 
             User user = userService.getCurrentUser(authentication);

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.modelmapper.ModelMapper;
 import com.github.oauth.repository.TechRepository;
-import com.github.oauth.repository.ProjectRepository;
 import com.github.oauth.model.Tech;
 import com.github.oauth.model.Project;
 import com.github.oauth.payload.ProjectDTO;
@@ -30,15 +29,15 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final TechRepository techRepository;
-    private final ProjectRepository projectRepository;
+    
     private final ModelMapper modelMapper;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, TechRepository techRepository,
-            ProjectRepository projectRepository, ModelMapper modelMapper) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
+            TechRepository techRepository, ModelMapper modelMapper) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.techRepository = techRepository;
-        this.projectRepository = projectRepository;
+       
         this.modelMapper = modelMapper;
     }
 

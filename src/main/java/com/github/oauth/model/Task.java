@@ -2,7 +2,7 @@ package com.github.oauth.model;
 
 import com.google.cloud.Timestamp;
 import lombok.Data;
-import java.util.Date;
+
 
 @Data
 public class Task {

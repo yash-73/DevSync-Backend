@@ -8,12 +8,13 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.WriteResult;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.Timestamp;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,8 +24,7 @@ public class MessageServiceImpl implements MessageService {
     private static final Logger logger = LoggerFactory.getLogger(MessageServiceImpl.class);
 
     private Firestore firestore;
-    // private UserRepository userRepository;
-    // private ProjectRepository projectRepository;
+
 
     public MessageServiceImpl(Firestore firestore) {
         this.firestore = firestore;
@@ -41,7 +41,7 @@ public class MessageServiceImpl implements MessageService {
             messageData.put("senderId", user.getId());
             messageData.put("projectId", message.getProjectId());
             messageData.put("message", message.getMessage());
-            messageData.put("timestamp", new Date());
+            messageData.put("timestamp", Timestamp.now());
 
             // Save to Firestore
             DocumentReference docRef = firestore.collection("Messages").document(docId);

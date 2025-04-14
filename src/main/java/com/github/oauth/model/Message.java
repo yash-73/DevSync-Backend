@@ -1,7 +1,6 @@
 package com.github.oauth.model;
 
-import java.time.LocalDateTime;
-
+import com.google.cloud.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +16,7 @@ public class Message {
     private String message;
     private Long userId;
     private Long projectId;
-    private LocalDateTime timeStamp;
+    private Timestamp timeStamp;
 
     public Message(String message, Long projectId){
         this.message = message;
