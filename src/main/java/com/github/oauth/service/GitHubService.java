@@ -157,13 +157,37 @@ public class GitHubService {
         }
     }
 
-    public void deleteRepository(String repoName) {
+    public void deleteRepository(String repoName, String accessToken) {
         try {
-            GitHub github = connectToGitHub();
-            GHMyself myself = github.getMyself();
-            GHRepository repository = myself.getRepository(repoName);
-            repository.delete();
-        } catch (IOException e) {
+            // Create HTTP client
+            HttpClient client = HttpClient.newHttpClient();
+            
+            // Get the current user's login
+            GitHub github = new GitHubBuilder().withOAuthToken(accessToken).build();
+            String owner = github.getMyself().getLogin();
+            
+            // Create request to delete repository
+            String apiUrl = String.format("https://api.github.com/repos/%s/%s", owner, repoName);
+            
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(apiUrl))
+                .header("Authorization", "token " + accessToken)
+                .header("Accept", "application/vnd.github.v3+json")
+                .DELETE()
+                .build();
+            
+            // Send request
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            if (response.statusCode() == 204) {
+                logger.info("Successfully deleted repository: {}", repoName);
+            } else {
+                logger.error("Failed to delete repository. Status code: {}, Response: {}", 
+                    response.statusCode(), response.body());
+                throw new RuntimeException("Failed to delete repository. Status code: " + response.statusCode());
+            }
+        } catch (IOException | InterruptedException e) {
+            logger.error("Failed to delete repository: {}", repoName, e);
             throw new RuntimeException("Failed to delete repository", e);
         }
     }

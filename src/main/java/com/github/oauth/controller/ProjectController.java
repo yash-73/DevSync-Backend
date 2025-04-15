@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.github.oauth.exception.ResourceNotFound;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -84,10 +85,13 @@ public class ProjectController {
             return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             logger.warn("Failed to delete project: {}", e.getMessage());
-            return ResponseEntity.status(401).body(e.getMessage());
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (ResourceNotFound e) {
+            logger.warn("Project not found: {}", e.getMessage());
+            return ResponseEntity.status(404).body(e.getMessage());
         } catch (Exception e) {
             logger.error("Error deleting project", e);
-            return ResponseEntity.status(500).body("Internal server error");
+            return ResponseEntity.status(500).body("Failed to delete project: " + e.getMessage());
         }
     }
 

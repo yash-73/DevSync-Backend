@@ -81,6 +81,11 @@ public class TaskServiceImpl implements TaskService {
             String currentStatus = document.getString("status");
             String newStatus = task.getStatus();
 
+            String pullRequestUrl = task.getPullRequestUrl();
+            if(pullRequestUrl != null) {
+                docRef.set(Map.of("pullRequestUrl", pullRequestUrl), SetOptions.merge()).get();
+            }
+
             // Validate status transitions
             if (currentStatus != null && currentStatus.equals("REQUESTED")) {
                 if (!newStatus.equals("PENDING") && !newStatus.equals("REJECTED")) {

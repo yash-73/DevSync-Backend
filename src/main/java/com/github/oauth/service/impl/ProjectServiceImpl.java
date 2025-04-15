@@ -139,22 +139,18 @@ public class ProjectServiceImpl implements ProjectService {
                     .orElseThrow(() -> new ResourceNotFound("Project not found with projectId: " + projectId));
 
             if (project.getCreator().getId().equals(user.getId())) {
-                // Delete GitHub repository
-                String repoName = project.getProjectName().toLowerCase().replaceAll("\\s+", "-");
-                githubService.deleteRepository(repoName);
-                logger.info("Deleted GitHub repository: {}", repoName);
-
                 // Delete project from database
                 projectRepository.delete(project);
                 user.getProjects().remove(project);
                 user.getCreatedProjects().remove(project);
+                logger.info("Project deleted from database. GitHub repository remains intact.");
                 return "Project deleted";
             } else {
                 return "You are not the creator of the project";
             }
         } catch (Exception e) {
-            logger.error("Error deleting project and GitHub repository", e);
-            throw new RuntimeException("Failed to delete project and GitHub repository", e);
+            logger.error("Error deleting project", e);
+            throw new RuntimeException("Failed to delete project", e);
         }
     }
 
