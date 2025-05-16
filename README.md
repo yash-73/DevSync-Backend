@@ -100,12 +100,6 @@ The GitHub integration requires:
 
 ---
 
-## 📸 Screenshots & Demo
-
-_Add screenshots or a video demo here if available._
-
----
-
 ## 🧪 Future Improvements
 
 - Project recommendation system based on user history.
