@@ -110,3 +110,19 @@ The GitHub integration requires:
 
 ---
 
+## 🖼️ Image Gallery
+
+Visuals can help convey the platform’s flow and UX more effectively. Here’s where you can showcase screenshots or diagrams:
+
+### 📌 Suggested Images to Add:
+- **Landing Page UI** – Overview of the homepage and call-to-action for signing in with GitHub.
+- **Project Creation Flow** – Steps for creating a new project and linking a GitHub repo.
+- **Contributor Dashboard** – Interface where contributors browse and request to join projects.
+- **Task Assignment Panel** – Real-time task management UI using Firebase.
+- **Pull Request Linking** – A screenshot showing how users can link PRs to tasks.
+- **Messaging System** – In-app chat interface between collaborators.
+- **Profile Page** – Highlights completed projects and tasks.
+
+> 📷 *Add images below or embed them directly into a markdown-rendered README using `![Alt Text](image-url)` or drag-and-drop them into the GitHub markdown preview.*
+
+---
