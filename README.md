@@ -116,6 +116,8 @@ Visuals can help convey the platform’s flow and UX more effectively. Here’s 
 
 ### 📌 Suggested Images to Add:
 - **Landing Page UI** – Overview of the homepage and call-to-action for signing in with GitHub.
+  ![Screenshot 2025-06-12 181658](https://github.com/user-attachments/assets/f8a95963-3e51-4ab2-b85e-6e925487b7ae)
+
 - **Project Creation Flow** – Steps for creating a new project and linking a GitHub repo.
 - **Contributor Dashboard** – Interface where contributors browse and request to join projects.
 - **Task Assignment Panel** – Real-time task management UI using Firebase.
