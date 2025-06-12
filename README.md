@@ -119,12 +119,26 @@ Visuals can help convey the platform’s flow and UX more effectively. Here’s 
   ![Screenshot 2025-06-12 181658](https://github.com/user-attachments/assets/f8a95963-3e51-4ab2-b85e-6e925487b7ae)
 
 - **Project Creation Flow** – Steps for creating a new project and linking a GitHub repo.
+  ![Screenshot 2025-06-12 183116](https://github.com/user-attachments/assets/737f1fa2-6e8c-4494-9a88-0b4068960be1)
+  ![Screenshot 2025-06-12 183152](https://github.com/user-attachments/assets/812f9306-ea1c-448f-9fc5-138d5a9be9c1)
+
+
 - **Contributor Dashboard** – Interface where contributors browse and request to join projects.
+- ![Screenshot 2025-06-12 182041](https://github.com/user-attachments/assets/22b79557-a3df-42b7-aa6a-2fc4741ac5b9)
+
 - **Task Assignment Panel** – Real-time task management UI using Firebase.
+- ![Screenshot 2025-06-12 182144](https://github.com/user-attachments/assets/fa4514d6-336a-4a57-9f22-2006c55933a7)
+- ![Screenshot 2025-06-12 182231](https://github.com/user-attachments/assets/04d1fc00-c520-4bc2-8638-75d5910c66b5)
+
+
 - **Pull Request Linking** – A screenshot showing how users can link PRs to tasks.
 - **Messaging System** – In-app chat interface between collaborators.
-- **Profile Page** – Highlights completed projects and tasks.
+- ![Screenshot 2025-06-12 182055](https://github.com/user-attachments/assets/40ac9d7a-b088-4fa9-b58f-8c5caed1c9d6)
 
-> 📷 *Add images below or embed them directly into a markdown-rendered README using `![Alt Text](image-url)` or drag-and-drop them into the GitHub markdown preview.*
+- **Profile Page** – Highlights completed projects and tasks.
+- ![Screenshot 2025-06-12 181739](https://github.com/user-attachments/assets/527a8191-e959-4ccf-a9d5-998e1604f52d)
+
+
+
 
 ---
