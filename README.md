@@ -110,16 +110,21 @@ The GitHub integration requires:
 
 ---
 
-## 🖼️ Image Gallery
+## Screenshots
 
-Visuals can help convey the platform’s flow and UX more effectively. Here’s where you can showcase screenshots or diagrams:
 
-### 📌 Suggested Images to Add:
+
 - **Landing Page UI** – Overview of the homepage and call-to-action for signing in with GitHub.
+- Using Github OAuth for accessing the website
+- ![Screenshot 2025-06-12 181646](https://github.com/user-attachments/assets/bc10a9a8-c7d8-4942-a27d-a9a4780e2973)
+- Home Page
   ![Screenshot 2025-06-12 181658](https://github.com/user-attachments/assets/f8a95963-3e51-4ab2-b85e-6e925487b7ae)
+  
 
 - **Project Creation Flow** – Steps for creating a new project and linking a GitHub repo.
   ![Screenshot 2025-06-12 183116](https://github.com/user-attachments/assets/737f1fa2-6e8c-4494-9a88-0b4068960be1)
+
+  A private repository is automatically created on your github profile with the same name and description.
   ![Screenshot 2025-06-12 183152](https://github.com/user-attachments/assets/812f9306-ea1c-448f-9fc5-138d5a9be9c1)
 
 
@@ -131,9 +136,12 @@ Visuals can help convey the platform’s flow and UX more effectively. Here’s 
 - ![Screenshot 2025-06-12 182231](https://github.com/user-attachments/assets/04d1fc00-c520-4bc2-8638-75d5910c66b5)
 
 
-- **Pull Request Linking** – A screenshot showing how users can link PRs to tasks.
+
 - **Messaging System** – In-app chat interface between collaborators.
 - ![Screenshot 2025-06-12 182055](https://github.com/user-attachments/assets/40ac9d7a-b088-4fa9-b58f-8c5caed1c9d6)
+- All messages are stored on firebase along with the project join requests and tasks
+- ![Screenshot 2025-06-12 182336](https://github.com/user-attachments/assets/6e3cb418-3d85-4be9-be07-741afc395eb9)
+
 
 - **Profile Page** – Highlights completed projects and tasks.
 - ![Screenshot 2025-06-12 181739](https://github.com/user-attachments/assets/527a8191-e959-4ccf-a9d5-998e1604f52d)
