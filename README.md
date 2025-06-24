@@ -1,10 +1,10 @@
-# 🚀 DevSync - A Project Collaboration Platform
+#  DevSync - A Project Collaboration Platform
 
-A full-stack platform where **developers can discover projects to contribute to** and **project creators can find collaborators** — all matched by tech stack preferences. With **GitHub OAuth**, **real-time updates**, and **seamless task management**, it brings together contributors and maintainers under one intuitive interface.
+A full-stack platform where **developers can discover projects to contribute to** and **project creators can find collaborators** all matched by tech stack preferences. With **GitHub OAuth**, **real-time updates**, and **seamless task management**, it brings together contributors and maintainers under one intuitive interface.
 
 ---
 
-## 🧠 Overview
+##  Overview
 
 This platform is designed to bridge the gap between developers and open-source/project maintainers by providing:
 
@@ -15,13 +15,13 @@ This platform is designed to bridge the gap between developers and open-source/p
 
 ---
 
-## ✨ Features
+##  Features
 
-### 🔍 Project Discovery
+###  Project Discovery
 - Users can search for projects based on their preferred **tech stack**.
 - Recommendations are driven by **stack compatibility**.
 
-### 🧑‍💻 Contributor Management
+###  Contributor Management
 - Project creators can:
   - Accept or reject collaboration requests.
   - Automatically add contributors as GitHub collaborators.
@@ -31,14 +31,14 @@ This platform is designed to bridge the gap between developers and open-source/p
   - Chat and coordinate within project pages.
   - Submit pull requests and link them to assigned tasks.
 
-### 🔒 Authentication
-- **GitHub OAuth Only** — login and authorization are handled entirely through GitHub.
+###  Authentication
+- **GitHub OAuth Only** - login and authorization are handled entirely through GitHub.
 - We request **read and write permissions** to:
   - Create private repositories.
   - Add collaborators.
   - Track pull request statuses.
 
-### 🔄 Real-Time Collaboration
+###  Real-Time Collaboration
 - Messages, join requests, and task updates are managed via **Firebase Firestore**.
 - Tasks reflect the actual status of GitHub pull requests using a **scheduled backend job**.
 
@@ -57,7 +57,7 @@ This platform is designed to bridge the gap between developers and open-source/p
 
 ---
 
-## 🔁 Project Flow
+##  Project Flow
 
 1. **User signs in** using GitHub OAuth. The access token is stored securely in MySQL.
 2. **User creates a project**:
@@ -82,7 +82,7 @@ This platform is designed to bridge the gap between developers and open-source/p
 
 ---
 
-## ✅ Why This Platform?
+##  Why This Platform?
 
 - Encourages **authentic collaboration** by linking task completion with actual PRs.
 - Promotes **skill-based discovery** using tech stack filters.
@@ -91,7 +91,7 @@ This platform is designed to bridge the gap between developers and open-source/p
 
 ---
 
-## 🔐 Permissions
+##  Permissions
 
 The GitHub integration requires:
 - Read access to user repositories.
@@ -100,7 +100,7 @@ The GitHub integration requires:
 
 ---
 
-## 🧪 Future Improvements
+##  Future Improvements
 
 - Project recommendation system based on user history.
 - Notification system for PR status changes.
